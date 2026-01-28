@@ -1,6 +1,6 @@
 import { useSignUp } from '@clerk/clerk-expo';
 import { useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import InitialSignUpForm from './forms/InitialSignUpForm';
 import VerifyEmailCodeSignUpForm from './forms/VerifyEmailCodeSignUpForm';
 
@@ -15,7 +15,7 @@ interface Props {
   homeUrl?: string;
 }
 
-export function SignUp({ scheme = "catalystapp", signInUrl = "/(auth)", homeUrl = "/" }: Props) {
+export function SignUp({ scheme = "mindpeace", signInUrl = "/(auth)", homeUrl = "/" }: Props) {
   const { isLoaded } = useSignUp();
   const [formState, setFormState] = useState<FormState>(FormState.SignIn);
   const [emailAddress, setEmailAddress] = useState('');
