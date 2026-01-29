@@ -5,7 +5,7 @@ import { Stack } from "expo-router";
 
 function RootLayoutWithAuth() {
     const { isSignedIn, isLoaded } = useAuth();
-    // console.log("FFFFFFFFFFFFFFF>>>>>>>>",isSignedIn);
+    console.log("FFFFFFFFFFFFFFF>>>>>>>>",isSignedIn);
 
     if (!isLoaded) {
         // loading state
