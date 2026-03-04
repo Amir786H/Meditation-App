@@ -1,3 +1,4 @@
+import SignOutButton from "@/components/clerk/SignOutButton";
 import { sessions } from "@/utils/sessions";
 import { useRouter } from "expo-router";
 import { Pressable, ScrollView, Text } from "react-native";
@@ -31,6 +32,8 @@ export default function Index() {
         >
           <Text>{session.title}</Text>
         </Pressable>)}
+
+        <SignOutButton />
     </ScrollView>
   );
 }

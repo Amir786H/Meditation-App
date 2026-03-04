@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 // Safely import expo modules
-let WebBrowser: any = { maybeCompleteAuthSession: () => {}, warmUpAsync: () => {}, coolDownAsync: () => {} };
+let WebBrowser: any = { maybeCompleteAuthSession: () => { }, warmUpAsync: () => { }, coolDownAsync: () => { } };
 let Linking: any = { createURL: () => "" };
 
 try {
@@ -43,7 +43,7 @@ export function OAuthButton({ strategy, children, hideText, scheme }: Props) {
   const clerk = useClerk();
   // @ts-ignore
   const environment = clerk.__unstable__environment as EnvironmentResource;
-  
+
   React.useEffect(() => {
     if (Platform.OS !== "android" || !webBrowserAvailable) return;
 
@@ -66,21 +66,30 @@ export function OAuthButton({ strategy, children, hideText, scheme }: Props) {
   const { startOAuthFlow } = useOAuth({ strategy });
 
   const onPress = React.useCallback(async () => {
+    const redirectUrl = Linking.createURL("/(protected)", { scheme: scheme });
+    console.log('OAuth redirectUrl:', redirectUrl, 'webBrowserAvailable:', webBrowserAvailable);
+
     if (!webBrowserAvailable && Platform.OS !== 'web') {
       console.error('WebBrowser is not available on this platform');
       return;
     }
-    
+
     try {
-      const { createdSessionId, setActive } = await startOAuthFlow({
-        redirectUrl: Linking.createURL("", { scheme: scheme }),
+      const { createdSessionId, signIn, signUp, setActive } = await startOAuthFlow({
+        redirectUrl,
       });
 
       if (createdSessionId && setActive) {
         await setActive({ session: createdSessionId });
+      } else if (signIn?.createdSessionId && setActive) {
+        await setActive({ session: signIn.createdSessionId });
+      } else if (signUp?.createdSessionId && setActive) {
+        await setActive({ session: signUp.createdSessionId });
+      } else {
+        console.warn("OAuth flow pending further action (MFA/Missing info)", { signIn, signUp })
       }
     } catch (err) {
-      console.error("OAuth error", JSON.stringify(err));
+      console.error("OAuth error", err);
     }
   }, [startOAuthFlow, scheme]);
 
@@ -89,38 +98,38 @@ export function OAuthButton({ strategy, children, hideText, scheme }: Props) {
     if (!environment?.userSettings?.social) {
       return { name: "Sign In", logoUrl: null };
     }
-    
+
     const provider = environment.userSettings.social[strategy as keyof typeof environment.userSettings.social];
-    
+
     if (!provider) {
       return { name: "Sign In", logoUrl: null };
     }
-    
+
     return {
       name: (provider as any).name || "Sign In",
       logoUrl: (provider as any).logo_url || null
     };
   }, [environment, strategy]);
-  
+
   const buttonText = () => {
     return providerInfo.name;
   }
 
   return (
     <TouchableOpacity onPress={onPress}>
-      { children ? children :       
+      {children ? children :
         <View style={styles.socialButton}>
           <View style={styles.socialButtonContent}>
             {providerInfo.logoUrl && (
-              <Image 
-                source={{ uri: providerInfo.logoUrl }} 
-                style={styles.providerLogo} 
+              <Image
+                source={{ uri: providerInfo.logoUrl }}
+                style={styles.providerLogo}
                 resizeMode="contain"
               />
             )}
             {!hideText && <Text style={styles.buttonText}>{buttonText()}</Text>}
           </View>
-        </View> }
+        </View>}
     </TouchableOpacity>
   );
 }

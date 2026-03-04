@@ -5,18 +5,23 @@ import { Stack } from "expo-router";
 
 function RootLayoutWithAuth() {
     const { isSignedIn, isLoaded } = useAuth();
-    console.log("FFFFFFFFFFFFFFF>>>>>>>>",isSignedIn);
+    // console.log("KEYYYYYYYYYYYYYY------>", process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
     if (!isLoaded) {
         // loading state
         return null;
     }
 
+    console.log("isSignedIn>>>>>>>>", isSignedIn);
+    const signedIn = isLoaded && !!isSignedIn;
+
+    console.log("signedIn>>>>>>>>", signedIn);
+
     return (
         <ElevenLabsProvider>
             <Stack>
-                <Stack.Protected guard={isSignedIn}>
-                    <Stack.Screen name="(protected)"  options={{ headerShown: false }} />
+                <Stack.Protected guard={Boolean(isSignedIn)}>
+                    <Stack.Screen name="(protected)" options={{ headerShown: false }} />
                 </Stack.Protected>
 
                 <Stack.Protected guard={!isSignedIn}>
